@@ -1,0 +1,34 @@
+name: Deployment
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # https://docs.github.com/en/actions/guides/building-and-testing-nodejs#installing-dependencies
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Build application
+        run: yarn build
+      # https://github.com/marketplace/actions/deploy-to-github-pages#using-an-ssh-deploy-key-
+      # https://medium.com/@cmichel/how-to-deploy-a-create-react-app-with-github-actions-5e01f7a7b6b
+      # ssh-keygen -t rsa -b 4096 -C "" -f /tmp/ACTIONS_DEPLOY_KEY -N ""
+      # Deploy keys - Add deploy key
+      # Title ACTIONS_DEPLOY_KEY.pub
+      # pbcopy < /tmp/ACTIONS_DEPLOY_KEY.pub
+      # [v] Allow write access
+      # Secrets - New repository secret
+      # Name ACTIONS_DEPLOY_KEY
+      # pbcopy < /tmp/ACTIONS_DEPLOY_KEY
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          publish_dir: packages/web/public
