@@ -6,6 +6,7 @@ let voice;
 
 // https://github.com/puppeteer/examples/blob/master/html/speech_synth.html
 // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
+// https://mdn.github.io/web-speech-api/speak-easy-synthesis/
 async function speak(text) {
   const msg = new SpeechSynthesisUtterance();
   msg.text = text;
@@ -38,7 +39,7 @@ async function speak(text) {
   speechSynthesis.speak(msg);
 }
 
-export default function Speak() {
+export default function () {
   const ref = useRef();
   const onSpeak = useCallback(
     () => console.log(["onSpeak"]) || speak(ref.current.value)
@@ -46,6 +47,7 @@ export default function Speak() {
 
   return (
     <div>
+      <h3>Speech synthesiser</h3>
       <textarea ref={ref} defaultValue={TEXT2SPEECH} />
       <button onClick={onSpeak}>Speak</button>
     </div>
