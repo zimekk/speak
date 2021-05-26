@@ -5,8 +5,9 @@ import styles from "./App.module.scss";
 const Spinner = () => <span>Loading...</span>;
 
 const PAGES = {
-  speech: lazy(() => import("./Speech")),
   recognition: lazy(() => import("./Recognition")),
+  speech: lazy(() => import("./Speech")),
+  tensorflow: lazy(() => import("./Tensorflow")),
 };
 
 const getPage = (location: { hash: string }) => {

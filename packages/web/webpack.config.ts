@@ -1,3 +1,4 @@
+import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import * as path from "path";
 import webpack from "webpack";
@@ -49,6 +50,7 @@ const config: webpack.Configuration = {
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    fallback: { fs: false, util: false },
   },
   output: {
     path: path.resolve(__dirname, "public"),
@@ -56,6 +58,17 @@ const config: webpack.Configuration = {
   plugins: [
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new HtmlWebpackPlugin(),
+    new CopyWebpackPlugin({
+      patterns: [
+        // https://github.com/webpack/webpack/issues/6586
+        // https://github.com/gridsome/gridsome/issues/1206
+        {
+          context: path.resolve(__dirname, "src/audio-model"),
+          from: "*.*",
+          to: "audio-model",
+        },
+      ],
+    }),
   ],
 };
 
