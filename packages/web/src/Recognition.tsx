@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // https://mdn.github.io/web-speech-api/speech-color-changer/
 var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
@@ -64,16 +64,61 @@ speechRecognitionList.addFromString(grammar, 1);
 recognition.grammars = speechRecognitionList;
 recognition.continuous = false;
 recognition.lang = "en-US";
+// recognition.lang = "pl-PL";
 recognition.interimResults = false;
 recognition.maxAlternatives = 1;
 
+let voice;
+
+// https://github.com/puppeteer/examples/blob/master/html/speech_synth.html
+// https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
+// https://mdn.github.io/web-speech-api/speak-easy-synthesis/
+async function speak(text) {
+  const msg = new SpeechSynthesisUtterance();
+  msg.text = text;
+  // msg.volume = 1; // 0 to 1
+  // msg.rate = 1; // 0.1 to 10
+  // msg.pitch = 1; //0 to 2
+  // msg.lang = this.DEST_LANG;
+
+  msg.voice = await new Promise((resolve) => {
+    console.log(["VOICE"], voice);
+    if (voice) {
+      resolve(voice);
+    } else {
+      // Voice are populated, async.
+      speechSynthesis.onvoiceschanged = (e) => {
+        console.log(["onvoiceschanged"]);
+        const voices = window.speechSynthesis.getVoices();
+        for (const voice of voices) {
+          // console.log(voice.name, voice.lang, voice.localService)
+        }
+        const name = "Google UK English Male"; // Note: only works in Google Chrome.
+        // const name = "Google polski";
+        resolve((voice = voices.find((voice) => voice.name === name)));
+      };
+    }
+  });
+
+  msg.onend = (e) => console.log("SPEECH_DONE");
+  console.log(["SPEAK"], msg.voice);
+  speechSynthesis.speak(msg);
+}
+
 export default function () {
+  const [started, setStarted] = useState(false);
   const diagnosticRef = useRef();
   const buttonRef = useRef();
 
   const onRecognition = useCallback(
     () =>
-      console.log(["Ready to receive a color command."]) || recognition.start()
+      console.log(["Ready to receive a color command."]) ||
+      recognition.start() ||
+      setStarted(true)
+  );
+
+  const onSpeak = useCallback(
+    (e) => console.log(["onSpeak"]) || speak(e.target.innerText)
   );
 
   useEffect(() => {
@@ -97,6 +142,7 @@ export default function () {
 
     recognition.onspeechend = function () {
       recognition.stop();
+      setStarted(false);
     };
 
     recognition.onnomatch = function (event) {
@@ -115,14 +161,16 @@ export default function () {
         Tap/click then say a color to change the background color of the app.
         Try{" "}
         {colors.map((backgroundColor, key) => (
-          <span key={key} style={{ backgroundColor }}>
+          <span key={key}>
             {" "}
-            {backgroundColor}{" "}
+            <button style={{ backgroundColor }} onClick={onSpeak}>
+              {backgroundColor}
+            </button>{" "}
           </span>
         ))}
         .
       </div>
-      <button ref={buttonRef} onClick={onRecognition}>
+      <button ref={buttonRef} onClick={onRecognition} disabled={started}>
         Recognition
       </button>
       <div ref={diagnosticRef}></div>
