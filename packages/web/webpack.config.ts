@@ -67,6 +67,11 @@ const config: webpack.Configuration = {
           from: "*.*",
           to: "audio-model",
         },
+        {
+          context: path.resolve(__dirname, "src/api"),
+          from: "*.json",
+          to: "api",
+        },
       ],
     }),
   ],

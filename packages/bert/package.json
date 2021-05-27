@@ -6,6 +6,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "directories": {
+    "bin": "bin"
+  },
   "files": [
     "lib"
   ],
