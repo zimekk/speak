@@ -8,6 +8,7 @@ env.config({ path: path.resolve(__dirname, "../../.env") });
 
 const dev = process.env.NODE_ENV === "development";
 
+// @ts-ignore:  Excessive stack depth comparing types
 const config: webpack.Configuration = {
   devServer: {
     port: 8080,
@@ -55,9 +56,11 @@ const config: webpack.Configuration = {
   output: {
     path: path.resolve(__dirname, "public"),
   },
+  // @ts-ignore: Excessive stack depth comparing types 'EnvironmentPlugin' and 'CopyPlugin'.
   plugins: [
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new HtmlWebpackPlugin(),
+    // @ts-ignore: Type 'CopyPlugin' is not assignable to type '((this: Compiler, compiler: Compiler) => void) | WebpackPluginInstance'.
     new CopyWebpackPlugin({
       patterns: [
         // https://github.com/webpack/webpack/issues/6586
